@@ -1,0 +1,29 @@
+This docker is based on the protocol in the following paper:
+Bulked-Segregant Analysis Coupled to Whole Genome Sequencing (BSA-Seq) for Rapid Gene Cloning in Maize
+by Klein H, Xiao Y, Conklin PA, Govindarajulu R, Kelly JA, Scanlon MJ, Whipple CJ, Bartlett M
+Published in G3 in November 2018 
+http://doi.org/10.1534/g3.118.200499
+
+This docker takes in two files containing forward and reverse Illumina reads,
+and returns pileup files you can use to plot your data in R, as well as data
+files containing information on genes with EMS-based SNPs and their predicted
+impact.
+
+We would recommend using R code such as that at the end of this file to visually
+analyze your data, and then subset the data in the other files to analyze your
+region of interest. This can be done in Excel by using the gene ID column.
+
+R Code:
+
+pileup_df <- read.csv(inputPileupName, header=FALSE, sep='\t', quote="", colClasses=c("NULL", NA, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", NA))
+colnames(pileup_df) <- c("position","f_variant")
+chr <- "ADD CHROMOSOME NUMBER HERE"
+hplot <- ggplot( subset(pileup_df, f_variant >= 1.00), aes(x=position)) + 
+	geom_histogram(binwidth=1000000) +
+	scale_x_continuous(expand=c(0,0), breaks=seq(min(0), max(pileup_df$position), by=20000000)) + 
+	scale_y_continuous(expand=c(0,0)) + 
+	ggtitle(paste("Chr. ", chr, " Frequency of the Frequency of Deviants = 1.00", sep='')) + 
+	theme(plot.title=element_text(hjust=0.5, face="bold"), axis.text.x=element_text(angle=70, hjust=1))
+	
+ggsave( hplot, filename=outPDFname, device="pdf", units="in", width=10, height=10 )
+
