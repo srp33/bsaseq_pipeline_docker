@@ -116,5 +116,5 @@ for i in {1..10}; do
 	awk '{if($5==0 && $6>0) print$0;}' snpEff_genes_chr${i}_EMS.txt > snpEff_MODERATE_IMPACT_genes_chr${i}_EMS.txt
 #add awk command to sort high, moderate, and low in genes file	
 done
-zip folder ${FILTERED_PILEUP_BASE_NAME}* snpEff_* README.txt
+zip folder ${FILTERED_PILEUP_BASE_NAME}* snpEff_* README
 mv folder /outputDir/OutData
