@@ -53,29 +53,29 @@ OUTPUT_FILE="/Temp/${ID}_filtered.pileup" #my $out_file = $ARGV[10];
 TOTAL_DIFF="Yes" #my $total_diff = $ARGV[11]; # set to "Yes" to print total number of deviant based
 PRINT_QUAL_BASES="Yes" #my $print_qual_bases = $ARGV[12]; #set to "Yes" to print quality and read base columns
 
-/pileup_parser.pl \
-	${INPUT_PILEUP} \
-	${REF_BASE_COL} \
-	${READ_BAD_COL} \
-	${BASE_QUAL_COL} \
-	${COVERAGE_COL} \
-	${QUAL_CUTOFF} \
-	${COVERAGE_CUTOFF} \
-	${SNPS_ONLY} \
-	${BED_FORMAT} \
-	${COORD_COL} \
-	${OUTPUT_FILE} \
-	${TOTAL_DIFF} \
-	${PRINT_QUAL_BASES}
-exit
+#/pileup_parser.pl \
+#	${INPUT_PILEUP} \
+#	${REF_BASE_COL} \
+#	${READ_BAD_COL} \
+#	${BASE_QUAL_COL} \
+#	${COVERAGE_COL} \
+#	${QUAL_CUTOFF} \
+#	${COVERAGE_CUTOFF} \
+#	${SNPS_ONLY} \
+#	${BED_FORMAT} \
+#	${COORD_COL} \
+#	${OUTPUT_FILE} \
+#	${TOTAL_DIFF} \
+#	${PRINT_QUAL_BASES}
 
 
 ###Filter based on coverage and add 13th column with frequency of deviants
 #variables created to abbreviate program calls
-FILTERED_PILEUP="${ID}_filtered.pileup"
-FILTERED_PILEUP_HIGH_CVRG="${ID}_pileup-filtered_cvrg-4.tsv"
+FILTERED_PILEUP="/Temp/${ID}_filtered.pileup"
+FILTERED_PILEUP_HIGH_CVRG="/Temp/${ID}_pileup-filtered_cvrg-4.tsv"
 #column $11 has the coverage at each position. If there isn't a coverage of at least 4, the data isn't used. Additionally, the frequency of deviation from the reference genome is calculated by taking the total number of deviants (column 12) and dividing by the total number of reads (column 11) 
-awk 'BEGIN{FS="\t";OFS="\t"}{ if ( $11 >= 4) { $13 = ($12 / $11); print $0 } }' ${FILTERED_PILEUP} > ${FILTERED_PILEUP_HIGH_CVRG}
+#awk 'BEGIN{FS="\t";OFS="\t"}{ if ( $11 >= 4) { $13 = ($12 / $11); print $0 } }' ${FILTERED_PILEUP} > ${FILTERED_PILEUP_HIGH_CVRG}
+
 # FILTERED PILEUP COLUMNS (first 12 columns come from pileup_parser.pl, the 13th comes from the awk function on the previous line)
 # 01 Chr
 # 02 Pos (1-based)
@@ -94,10 +94,10 @@ awk 'BEGIN{FS="\t";OFS="\t"}{ if ( $11 >= 4) { $13 = ($12 / $11); print $0 } }' 
 
 ###Bowtie2 allows for ambiguous base pairs in the reference genome, and when aligning to the reference genome. This step removes these ambiguous bases (false positives) from the data set
 
-FILTERED_PILEUP_BASE_NAME="${ID}_pileup-filtered_cvrg-4"
-FILTERED_PILEUP="${FILTERED_PILEUP_BASE_NAME}.tsv"
+FILTERED_PILEUP_HIGH_CVRG_2="/Temp/${ID}_pileup-filtered_cvrg-4_2.tsv"
 
-awk '$2!=N{print $0}' > "${FILTERED_PILEUP}"
+cat ${FILTERED_PILEUP_HIGH_CVRG} | awk '$2!=N{print $0}' > "${FILTERED_PILEUP_HIGH_CVRG_2}"
+exit
 #This is where you would plot graphs
 
 for i in {1..10}; do
