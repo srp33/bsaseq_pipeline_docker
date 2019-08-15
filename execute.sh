@@ -1,8 +1,8 @@
 #!/bin/bash
 
-
 #variable created to abbreviate program calls
 ID="currentProject"
+
 ###trim Illumina adapters off
 # -f indicates forward reads, -r reverse reads, -o output/trimmed forward reads -p output/trimmed reverse reads -s output/trimmed singleton reads -t indicates the quality scoring scheme (phred)
 sickle pe -f $1 -r $2 -o trimmed-for.fastq -p trimmed-rev.fastq -s trimmed.s.fastq -t sanger
