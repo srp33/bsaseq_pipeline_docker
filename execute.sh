@@ -1,26 +1,30 @@
 #!/bin/bash
 
+IN_FASTQ_1="${1}"
+IN_FASTQ_2="${2}"
+
 #variable created to abbreviate program calls
-ID="currentProject"
+ID="testProject"
+FASTQ1="/Temp/trimmed-for.fastq"
+FASTQ2="/Temp/trimmed-rev.fastq"
+REF="/genome/B73.fasta"
 
 ###trim Illumina adapters off
 # -f indicates forward reads, -r reverse reads, -o output/trimmed forward reads -p output/trimmed reverse reads -s output/trimmed singleton reads -t indicates the quality scoring scheme (phred)
-sickle pe -f $1 -r $2 -o trimmed-for.fastq -p trimmed-rev.fastq -s trimmed.s.fastq -t sanger
+#sickle pe -f ${IN_FASTQ_1} -r ${IN_FASTQ_2} -o ${FASTQ1} -p ${FASTQ2} -s /dev/null -t sanger
 
 ###Align data to reference genome
 # variables created to abbreviate code in next program call
-FASTQ1="trimmed-for.fastq"
-FASTQ2="trimmed-rev.fastq"
 # -x indicates reference genome --phred33 indicates quality scoring scheme -1 indicates forward reads -2 indicates reverse reads -S specifies output is to be a .sam file
-bowtie2 -x "./B73" --phred33 -1 ${FASTQ1} -2 ${FASTQ2} -S ${ID}.sam
+#bowtie2 -x "/genome/B73" --phred33 -1 ${FASTQ1} -2 ${FASTQ2} -S /Temp/${ID}.sam --threads ${THREADS}
 
 ###Convert from .sam to .bam, sort and index
 #variable created to abbreviate program call
-REF="./B73.fasta"
 #view allows us to take the alignment information in ${ID}.sam and output it to the sort function
 # -b output is in the bam format -u the output is uncompressed (desirable since we're piping it into the next function) -T specifies a fasta format reference file
 #sort sorts reads by leftmost coordinate. -O specifies output file format -o specifies output file to write to
 samtools view -bu -T ${REF} ${ID}.sam | samtools sort -O bam -o ${ID}_sorted.bam -
+exit
 
 #cleaning up a bit. If the above worked, delete the HUGE sam file, we have a sorted bam.
 if [ $? -eq 0 ]

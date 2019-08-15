@@ -1,17 +1,26 @@
 #!/bin/bash
 
-# This should be an existing directory that has FASTQ files in it.
-# Must be an absolute path
-#inputDir=/path/on/linux/computer/input
+if [ ! -d InputData ]
+then
+    echo "InputData directory must have been created."
+    exit 1
+fi
+if [ ! -d OutputData ]
+then
+    echo "OutputData directory must have been created."
+    exit 1
+fi
 
-# First create output directory (outside the container)
-# Must be an absolute path
-#outputDir=/path/on/linux/computer/output
-# mkdir -p $outputDir
+mkdir -p Temp
+
+bash build_docker.sh
 
 docker run --rm -i -t \
-  -v "$inputDir":"/InputData" \
-  -v "$outputDir":"/OutputData" \
-  --user $(id -u):$(id -g) \
-  srp33/bsaseq:version$(cat VERSION) \
-  /bin/bash
+    -v "$(pwd)/InputData":"/InputData" \
+    -v "$(pwd)/OutputData":"/OutputData" \
+    -v "$(pwd)/Temp":"/Temp" \
+    --user $(id -u):$(id -g) \
+    srp33/bsaseq:version$(cat VERSION) \
+    bash execute.sh \
+        /InputData/for.fastq \
+        /InputData/rev.fastq

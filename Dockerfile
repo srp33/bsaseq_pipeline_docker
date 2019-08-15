@@ -25,7 +25,8 @@ RUN mkdir /genome \
  && gunzip -c Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz > B73.fasta \ 
  && rm Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz \ 
  && bowtie2-build --threads $THREADS -f B73.fasta "B73" \
- && cd /
+ && cd / \
+ && chmod 777 /genome -R
 
 RUN wget -O VarScan.jar "https://sourceforge.net/projects/varscan/files/latest/download" \ 
  && wget "http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip" \ 
