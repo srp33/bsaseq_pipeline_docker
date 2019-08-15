@@ -4,7 +4,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 ENV TZ=US
 ENV MINICONDA_VERSION=4.6.14
 ENV PATH="/miniconda/bin:${PATH}"
-ENV THREADS=8
+ENV THREADS=32
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
  && echo $TZ > /etc/timezone \

@@ -23,27 +23,23 @@ REF="/genome/B73.fasta"
 #view allows us to take the alignment information in ${ID}.sam and output it to the sort function
 # -b output is in the bam format -u the output is uncompressed (desirable since we're piping it into the next function) -T specifies a fasta format reference file
 #sort sorts reads by leftmost coordinate. -O specifies output file format -o specifies output file to write to
-samtools view -bu -T ${REF} ${ID}.sam | samtools sort -O bam -o ${ID}_sorted.bam -
-exit
+#samtools view -bu -T ${REF} /Temp/${ID}.sam | samtools sort -O bam -o /Temp/${ID}_sorted.bam -
 
 #cleaning up a bit. If the above worked, delete the HUGE sam file, we have a sorted bam.
-if [ $? -eq 0 ]
-then
-	rm ${ID}.sam
-	chmod 444 ${ID}_sorted.bam
-fi
+#rm /Temp/${ID}.sam
+
 #indexing our file allows for faster accession of data
-samtools index ${ID}_sorted.bam
+#samtools index /Temp/${ID}_sorted.bam
 
 ###Create pileup file, which reorganizes the data by genomic position and have columns with info in the reads at that position, rather than having the reads organized by read (as in the .bam)
 #-f specifies the reference genome -o specifies the output file
-samtools mpileup -f ${REF} -o ${ID}.pileup ${ID}_sorted.bam
+#samtools mpileup -f ${REF} -o /Temp/${ID}.pileup /Temp/${ID}_sorted.bam
 
 ###Filter pileup
 # pileup_parser.pl obtained as part of a suite of tools downloaded from https://github.com/galaxyproject/tools-devteam
 #the following variables are used in place of magic numbers in the next program call
 #die "Usage: pileup_parser.pl <in_file> <ref_base_column> <read_bases_column> <base_quality_column> <coverage column> <qv cutoff> <coverage cutoff> <SNPs only?> <output bed?> <coord_column> <out_file> <total_diff> <print_qual_bases>\n" unless @ARGV == 13;
-INPUT_PILEUP="${ID}.pileup" #my $in_file = $ARGV[0];
+INPUT_PILEUP="/Temp/${ID}.pileup" #my $in_file = $ARGV[0];
 REF_BASE_COL=3 #my $ref_base_column = $ARGV[1]-1; # 1 based
 READ_BAD_COL=5 #my $read_bases_column = $ARGV[2]-1; # 1 based
 BASE_QUAL_COL=6 #my $base_quality_column = $ARGV[3]-1; # 1 based
@@ -53,11 +49,11 @@ COVERAGE_CUTOFF=3 #my $cvrg_cutoff = $ARGV[6]; # unsigned integer
 SNPS_ONLY="Yes" #my $SNPs_only = $ARGV[7]; # set to "Yes" to print only positions with SNPs; set to "No" to pring everything
 BED_FORMAT="No" #my $bed = $ARGV[8]; #set to "Yes" to convert coordinates to bed format (0-based start, 1-based end); set to "No" to leave as is
 COORD_COL=1 #my $coord_column = $ARGV[9]-1; #1 based 
-OUTPUT_FILE="${ID}_filtered.pileup" #my $out_file = $ARGV[10];
+OUTPUT_FILE="/Temp/${ID}_filtered.pileup" #my $out_file = $ARGV[10];
 TOTAL_DIFF="Yes" #my $total_diff = $ARGV[11]; # set to "Yes" to print total number of deviant based
 PRINT_QUAL_BASES="Yes" #my $print_qual_bases = $ARGV[12]; #set to "Yes" to print quality and read base columns
 
-./pileup_parser.pl \
+/pileup_parser.pl \
 	${INPUT_PILEUP} \
 	${REF_BASE_COL} \
 	${READ_BAD_COL} \
@@ -71,6 +67,7 @@ PRINT_QUAL_BASES="Yes" #my $print_qual_bases = $ARGV[12]; #set to "Yes" to print
 	${OUTPUT_FILE} \
 	${TOTAL_DIFF} \
 	${PRINT_QUAL_BASES}
+exit
 
 
 ###Filter based on coverage and add 13th column with frequency of deviants
