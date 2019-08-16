@@ -98,6 +98,8 @@ FILTERED_PILEUP_HIGH_CVRG="/Temp/${ID}_pileup-filtered_cvrg-4.tsv"
 
 FILTERED_PILEUP_HIGH_CVRG_2="/Temp/${ID}_pileup-filtered_cvrg-4_2.tsv"
 
+# This line is supposed to remove all the lines where the reference base is “N” rather than the standard ATGC.
+# Doing this effectively removes false positives from mismatching ATGC to N.
 #awk '$2!=N{print $0}' "${FILTERED_PILEUP_HIGH_CVRG}" > "${FILTERED_PILEUP_HIGH_CVRG_2}"
 
 #This is where you would plot graphs
