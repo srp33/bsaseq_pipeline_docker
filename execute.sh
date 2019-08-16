@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#TODO: Refine this based on https://www.protocols.io/view/bsa-seq-in-maize-qyedxte
+
 IN_FASTQ_1="${1}"
 IN_FASTQ_2="${2}"
 
@@ -96,26 +98,42 @@ FILTERED_PILEUP_HIGH_CVRG="/Temp/${ID}_pileup-filtered_cvrg-4.tsv"
 
 FILTERED_PILEUP_HIGH_CVRG_2="/Temp/${ID}_pileup-filtered_cvrg-4_2.tsv"
 
-cat ${FILTERED_PILEUP_HIGH_CVRG} | awk '$2!=N{print $0}' > "${FILTERED_PILEUP_HIGH_CVRG_2}"
-exit
+#awk '$2!=N{print $0}' "${FILTERED_PILEUP_HIGH_CVRG}" > "${FILTERED_PILEUP_HIGH_CVRG_2}"
+
 #This is where you would plot graphs
 
-for i in {1..10}; do
-#Split by chromosome
-	awk "\$1==${i}{print \$0}" "${FILTERED_PILEUP}" > ${FILTERED_PILEUP_BASE_NAME}_chr${i}.tsv
-#VarScan filters based upon homozygosity. mpileup2cns means it takes in a mpileup formatted file and runs a consensus analysis. --min-coverage is the minimum read depth. --min-var-freq is the minimum variant allele frequency threshold. --p-value is the p value threshold for calling variants 
-	java -jar VarScan.jar mpileup2cns ${FILTERED_PILEUP_BASE_NAME}_chr${i}.tsv --min-coverage 4 --min-var-freq 0.5 --p-value 0.99 > chr${i}.vcf
-#99.9% of the time, EMS produces mutations by changing C -> T or G -> A. This awk command filters the data to contain just those base pair deviations
-	awk '{if($3=="C" && $4=="T") print $0; else if ($3=="G" && $4=="A") print $0}' chr${i}.vcf > chr${i}_EMS.vcf
-#runs snpEff program, which analyzes the data and produces output files containing information on the effect the SNPs have. The snpEff_summary.html contains a summary of the information. The snpEff_genes.txt contains the information of interest - mutations in genes and their predicted effects. The output file specified in the program call contains additional information that may be useful to users.
-	java -jar snpEff/snpEff.jar Zea_mays chr${i}_EMS.vcf > snpEff_chr${i}_EMS.vcf
-	mv snpEff_summary.html snpEff_summary_chr${i}_EMS.html
-	mv snpEff_genes.txt snpEff_genes_chr${i}_EMS.txt
-#awk command to pull out all of the high impact variants and place them in their own data file
-	awk '{if($5>0) print$0;}' snpEff_genes_chr${i}_EMS.txt > snpEff_HIGH_IMPACT_genes_only_chr${i}_EMS.txt
-#awk command to pull out all of the moderate impact variants that were not high impact variants and place them in their own data file
-	awk '{if($5==0 && $6>0) print$0;}' snpEff_genes_chr${i}_EMS.txt > snpEff_MODERATE_IMPACT_genes_chr${i}_EMS.txt
-#add awk command to sort high, moderate, and low in genes file	
+for i in {1..10}
+do
+    echo "Final filtering on chromosome $i"
+
+    CHR_TSV_FILE="/Temp/${ID}_filtered_pileup_chr${i}.tsv"
+    CHR_VCF_FILE="/Temp/${ID}_filtered_pileup_chr${i}.vcf"
+    CHR_EMS_VCF_FILE="/Temp/${ID}_filtered_pileup_chr${i}_ems.vcf"
+    CHR_SNPEFF_EMS_VCF_FILE="/Temp/${ID}_filtered_pileup_chr${i}_ems_snpeff.vcf"
+
+    #Split by chromosome
+#    awk "\$1==${i}{print \$0}" "${FILTERED_PILEUP_HIGH_CVRG_2}" > "${CHR_TSV_FILE}"
+
+    #VarScan filters based upon homozygosity. mpileup2cns means it takes in a mpileup formatted file and runs a consensus analysis. --min-coverage is the minimum read depth. --min-var-freq is the minimum variant allele frequency threshold. --p-value is the p value threshold for calling variants 
+#    java -jar VarScan.jar mpileup2cns "${CHR_TSV_FILE}" --min-coverage 4 --min-var-freq 0.5 --p-value 0.99 > "${CHR_VCF_FILE}"
+
+    #99.9% of the time, EMS produces mutations by changing C -> T or G -> A. This awk command filters the data to contain just those base pair deviations
+#    awk '{if($3=="C" && $4=="T") print $0; else if ($3=="G" && $4=="A") print $0}' "${CHR_VCF_FILE}" > "${CHR_EMS_VCF_FILE}"
+
+    #runs snpEff program, which analyzes the data and produces output files containing information on the effect the SNPs have. The snpEff_summary.html contains a summary of the information. The snpEff_genes.txt contains the information of interest - mutations in genes and their predicted effects. The output file specified in the program call contains additional information that may be useful to users.
+    java -jar snpEff/snpEff.jar Zea_mays "${CHR_EMS_VCF_FILE}" > "${CHR_SNPEFF_EMS_VCF_FILE}"
+break
+#	mv snpEff_summary.html snpEff_summary_chr${i}_EMS.html
+#	mv snpEff_genes.txt snpEff_genes_chr${i}_EMS.txt
+
+    #awk command to pull out all of the high impact variants and place them in their own data file
+#	awk '{if($5>0) print$0;}' snpEff_genes_chr${i}_EMS.txt > snpEff_HIGH_IMPACT_genes_only_chr${i}_EMS.txt
+
+    #awk command to pull out all of the moderate impact variants that were not high impact variants and place them in their own data file
+#	awk '{if($5==0 && $6>0) print$0;}' snpEff_genes_chr${i}_EMS.txt > snpEff_MODERATE_IMPACT_genes_chr${i}_EMS.txt
+
+    #add awk command to sort high, moderate, and low in genes file	
 done
-zip folder ${FILTERED_PILEUP_BASE_NAME}* snpEff_* README
-mv folder /outputDir/OutData
+
+#zip folder ${FILTERED_PILEUP_BASE_NAME}* snpEff_* README
+#mv folder /outputDir/OutData

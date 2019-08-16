@@ -32,6 +32,7 @@ RUN wget -O VarScan.jar "https://sourceforge.net/projects/varscan/files/latest/d
  && wget "http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip" \ 
  && unzip snpEff_latest_core.zip \
  && rm snpEff_latest_core.zip
+# TODO: Download the snpEff database for Zea_mays here.
 
 ADD execute.sh /
 ADD pileup_parser.pl /

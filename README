@@ -4,6 +4,8 @@ by Klein H, Xiao Y, Conklin PA, Govindarajulu R, Kelly JA, Scanlon MJ, Whipple C
 Published in G3 in November 2018 
 http://doi.org/10.1534/g3.118.200499
 
+More details here: https://www.protocols.io/view/bsa-seq-in-maize-qyedxte
+
 This docker takes in two files containing forward and reverse Illumina reads,
 and returns pileup files you can use to plot your data in R, as well as data
 files containing information on genes with EMS-based SNPs and their predicted
